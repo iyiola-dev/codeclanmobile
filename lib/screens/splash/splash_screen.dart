@@ -17,29 +17,29 @@ class _SplashScreenState extends State<SplashScreen> {
 
   _SplashScreenState({this.userRepository});
 
-  @override
-  void initState() {
-    super.initState();
-    splashTimer();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   splashTimer();
+  // }
 
-  splashTimer() async {
-    var duration = Duration(seconds: 3);
-    return new Timer(duration, () {
-      Navigator.pushReplacement(
-          context,
-          new MaterialPageRoute(
-              builder: (_) => LoginScreen(userRepository: userRepository)));
-    });
-  }
+  // splashTimer() async {
+  //   var duration = Duration(seconds: 3);
+  //   return new Timer(duration, () {
+  //     Navigator.pushReplacement(
+  //         context,
+  //         new MaterialPageRoute(
+  //             builder: (_) => LoginScreen(userRepository: userRepository)));
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.buttonShade1,
+        backgroundColor: AppColors.backgroundShade2,
         body: Center(
             child: Image.asset(
-          'asset/images/codeclan_white.png',
+          'assets/images/codeclan_white.png',
           width: 100,
           height: 100,
         )));

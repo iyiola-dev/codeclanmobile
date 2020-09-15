@@ -1,79 +1,110 @@
+import 'package:codeclanmobile/screens/tasks/bloc/task_bloc.dart';
 import 'package:codeclanmobile/screens/tasks/submit_task_view.dart';
+import 'package:codeclanmobile/services/api/models/task_dto.dart';
 import 'package:codeclanmobile/utils/spaces.dart';
 import 'package:codeclanmobile/values/values.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:html_unescape/html_unescape.dart';
 
-class TaskView extends StatelessWidget {
+class TaskView extends StatefulWidget {
+  @override
+  _TaskViewState createState() => _TaskViewState();
+}
+
+class _TaskViewState extends State<TaskView> {
   @override
   Widget build(BuildContext context) {
     var widthOfScreen = MediaQuery.of(context).size.width;
     var heightOfScreen = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Color(0XFFf4f5f9),
-      body: Stack(
-        children: <Widget>[
-          Container(
-            height: heightOfScreen,
-            width: widthOfScreen,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    end: Alignment.bottomCenter,
-                    begin: Alignment.topCenter,
-                    stops: [
-                  0,
-                  0.7,
-                  1.0
-                ],
-                    colors: [
-                  AppColors.backgroundShade1,
-                  AppColors.backgroundShade2,
-                  AppColors.backgroundShade3,
-                ])),
-          ),
-          Image.asset('assets/images/eclipse.png'),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: BlocProvider(
+          create: (context) => TaskBloc()..add(GetTracks()),
+          child: BlocConsumer<TaskBloc, TaskState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              return Stack(
                 children: <Widget>[
-                  Text(
-                    'Tasks',
-                    style: GoogleFonts.poppins(
-                        textStyle: TextStyle(
-                            color: Color(0xFFFF7698),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25)),
+                  Container(
+                    height: heightOfScreen,
+                    width: widthOfScreen,
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                            end: Alignment.bottomCenter,
+                            begin: Alignment.topCenter,
+                            stops: [
+                          0,
+                          0.7,
+                          1.0
+                        ],
+                            colors: [
+                          AppColors.backgroundShade1,
+                          AppColors.backgroundShade2,
+                          AppColors.backgroundShade3,
+                        ])),
                   ),
-                  SpaceH30(),
-                  // Column(
-                  //   children: <Widget>[taskItem(heightOfScreen, widthOfScreen)],
-                  // ),
-                  Expanded(
-                    child: ListView.separated(
-                        itemBuilder: (BuildContext context, int index) {
-                          return taskItem(heightOfScreen, widthOfScreen,
-                              index + 1, context);
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return SpaceH16();
-                        },
-                        itemCount: 3),
-                  )
+                  Image.asset('assets/images/eclipse.png'),
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 20.0, right: 20.0, top: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            'Tasks',
+                            style: GoogleFonts.poppins(
+                                textStyle: TextStyle(
+                                    color: AppColors.alternateShade3,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 25)),
+                          ),
+                          SpaceH30(),
+                          // Column(
+                          //   children: <Widget>[taskItem(heightOfScreen, widthOfScreen)],
+                          // ),
+                          state is TaskLoading
+                              ? Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                              : state is TaskLoaded
+                                  ? Expanded(
+                                      child: ListView.separated(
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return taskItem(
+                                                heightOfScreen,
+                                                widthOfScreen,
+                                                state.task.items[index],
+                                                context);
+                                          },
+                                          separatorBuilder:
+                                              (BuildContext context,
+                                                  int index) {
+                                            return SpaceH16();
+                                          },
+                                          itemCount: 3),
+                                    )
+                                  : Container()
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
-              ),
-            ),
-          ),
-        ],
-      ),
+              );
+            },
+          )),
     );
   }
 }
 
 Widget taskItem(
-    heightOfScreen, widthOfScreen, int index, BuildContext context) {
+    heightOfScreen, widthOfScreen, Item task, BuildContext context) {
+  var unescape = new HtmlUnescape();
   return Container(
     margin: const EdgeInsets.only(bottom: 6.0),
     height: heightOfScreen * 0.30,
@@ -95,7 +126,7 @@ Widget taskItem(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Task $index',
+            '${task.title}',
             style: GoogleFonts.poppins(
                 textStyle: TextStyle(
                     color: AppColors.buttonShade1,
@@ -104,7 +135,7 @@ Widget taskItem(
           ),
           SpaceH8(),
           Text(
-            'MOBILE DEVELOPMENT',
+            '${task.track}',
             style: GoogleFonts.poppins(
                 textStyle: TextStyle(
                     color: Color(0xFFAC57B8),
@@ -112,20 +143,27 @@ Widget taskItem(
                     fontSize: 10)),
           ),
           SpaceH8(),
-          Text(
-            'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution',
-            textAlign: TextAlign.left,
-            style: GoogleFonts.poppins(
+          HtmlWidget(
+            '${unescape.convert(task.description).substring(0, 200)}...',
+            textStyle: GoogleFonts.poppins(
                 textStyle: TextStyle(
                     color: Color(0xFF666666),
                     fontWeight: FontWeight.w300,
                     fontSize: 12)),
           ),
-          SpaceH16(),
-          Divider(
-            color: Color(0xFF666666).withOpacity(0.5),
-          ),
-          SpaceH8(),
+          // Text(
+          //   '${unescape.convert(task.description)}',
+          //   textAlign: TextAlign.left,
+          //   softWrap: true,
+          //   maxLines: 5,
+          //   overflow: TextOverflow.fade,
+          //   style: GoogleFonts.poppins(
+          //       textStyle: TextStyle(
+          //           color: Color(0xFF666666),
+          //           fontWeight: FontWeight.w300,
+          //           fontSize: 12)),
+          // ),
+          Spacer(),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -139,7 +177,7 @@ Widget taskItem(
                     ),
                     SpaceW8(),
                     Text(
-                      '23 Aug, 2020',
+                      '${task.stage}',
                       style: GoogleFonts.poppins(
                           textStyle: TextStyle(
                               color: Color(0xFF666666).withOpacity(0.5),
@@ -151,22 +189,25 @@ Widget taskItem(
                 GestureDetector(
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SubmitTaskView()),
+                    MaterialPageRoute(
+                        builder: (context) => SubmitTaskView(
+                              task: task,
+                            )),
                   ),
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(2),
-                      color: Color(0xFFFF7698),
+                      color: AppColors.alternateShade3,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(5.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        'Submit task',
+                        'See Details',
                         style: GoogleFonts.poppins(
                             textStyle: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
-                                fontSize: 12)),
+                                fontSize: 14)),
                       ),
                     ),
                   ),

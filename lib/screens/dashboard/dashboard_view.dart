@@ -1,6 +1,7 @@
 import 'package:codeclanmobile/blocs/authentication_bloc.dart';
 import 'package:codeclanmobile/common/custom_button.dart';
 import 'package:codeclanmobile/screens/onboarding/register/register.dart';
+import 'package:codeclanmobile/screens/stages/stages_view.dart';
 import 'package:codeclanmobile/screens/tracks/track_screen.dart';
 import 'package:codeclanmobile/utils/spaces.dart';
 import 'package:codeclanmobile/values/values.dart';
@@ -98,7 +99,7 @@ class _DashboardViewState extends State<DashboardView> {
                                     Feather.file,
                                     'Pending\ntasks',
                                     'Move to the next stage',
-                                    '2',
+                                    null,
                                     null))
                           ],
                         ),
@@ -113,7 +114,13 @@ class _DashboardViewState extends State<DashboardView> {
                                   'Current\nstage',
                                   'See your progress',
                                   null,
-                                  null),
+                                  () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => StagesView(
+                                                trackId:
+                                                    state.user.tracks[0].id)),
+                                      )),
                             ),
                             SpaceW16(),
                             Expanded(
@@ -122,13 +129,9 @@ class _DashboardViewState extends State<DashboardView> {
                                     Colors.black87,
                                     Feather.award,
                                     'My\ntracks',
-                                    'Your enrolled tracks',
+                                    'Your enrolled track',
                                     '${state.user.tracks.length}',
-                                    () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                TrackListScreen()))))
+                                    () {}))
                           ],
                         ),
                         SpaceH40(),

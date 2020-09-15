@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:codeclanmobile/screens/dashboard/dashboard_screen.dart';
 import 'package:codeclanmobile/screens/onboarding/login/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,7 @@ class App extends StatelessWidget {
           cubit: BlocProvider.of<AuthenticationBloc>(context),
           builder: (context, state) {
             if (state is AuthenticationSuccess) {
-              return DashboardScreen();
+              return AudioServiceWidget(child: DashboardScreen());
             }
             if (state is AuthenticationFailure) {
               return LoginScreen(userRepository: userRepository);
